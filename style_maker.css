@@ -12,7 +12,7 @@
   align-items: center;
   gap: 6px;
   margin: 0;
-  font-size: 12px;
+  font-size: 13px;
   color: var(--muted);
 }
 .header .chk input { width: auto; margin: 0; }
@@ -25,20 +25,20 @@
   padding: 0;
 }
 .erb-load-title {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--muted);
   white-space: nowrap;
 }
 /* 파일 인풋 크기 조정 (기존 style.css의 input[type=file] 디자인 유지) */
 .erb-load-wrap input[type=file] {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--muted);
   margin: 0;
   padding: 2px;
   width: auto;
   background: transparent;
-  border-radius: 6px;
+  border-radius: 4px;
   border: 1px solid var(--border);
 }
 /* =========================================================
@@ -47,7 +47,7 @@
 .sidebar-fallback {
   padding: 12px 14px;
   color: var(--warn);
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.6;
 }
 
@@ -79,7 +79,7 @@
 .set {
   background: var(--panel);
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 4px;
   padding: 14px;
   margin-bottom: 14px;
   display: block;
@@ -100,11 +100,11 @@
   flex-wrap: wrap;
 }
 .set-char-count {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--warn);
   font-weight: bold;
-  background: #3a2e10;
-  border: 1px solid #6b5418;
+  background: var(--charsbg);
+  border: 1px solid var(--charano);
   border-radius: 4px;
   padding: 2px 10px;
 }
@@ -118,7 +118,7 @@
 }
 .set .set-title-wrap .set-num {
   color: var(--muted);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: normal;
   margin-right: 2px;
 }
@@ -132,35 +132,12 @@
 /* 셀렉트 자동 안내 표기 */
 .branch-note {
   display: block;
-  font-size: 12px;
+  font-size: 13px;
   color: var(--muted);
   margin-bottom: 8px;
   font-weight: normal;
 }
 .branch-note b { color: var(--accent); }
-
-/* =========================================================
-   삭제 버튼 (세트/선택지/통합 구상 공통)
-   ========================================================= */
-.del,
-.del-choice-btn,
-.del-merge-btn {
-  background: #3a2a2a;
-  border-color: #5a3a3a;
-  color: #e57373;
-  padding: 3px 10px;
-  font-size: 12px;
-}
-.del:hover,
-.del-choice-btn:hover,
-.del-merge-btn:hover {
-  background: #4a3a3a;
-  border-color: #7a4a4a;
-}
-.del-choice-btn:disabled {
-  opacity: 0.35;
-  cursor: not-allowed;
-}
 
 /* =========================================================
    그리드
@@ -180,7 +157,7 @@
    ========================================================= */
 .set label {
   display: block;
-  font-size: 12px;
+  font-size: 13px;
   color: var(--muted);
   margin-bottom: 8px;
   font-weight: normal;
@@ -192,10 +169,10 @@
   display: block;
   width: 100%;
   margin-top: 4px;
-  background: #1a1b1f;
+  background: var(--bg);
   color: var(--text);
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: 4px;
   padding: 8px 10px;
   font-family: inherit;
   font-size: 13px;
@@ -218,12 +195,12 @@
   min-width: 400px;
   display: flex;
   flex-direction: column;
-  background: #141519;
+  background: var(--preview);
   border-left: 1px solid var(--border);
 }
 .preview-wrap .preview-header {
   padding: 10px 14px;
-  background: #18191d;
+  background: var(--bg);
   border-bottom: 1px solid var(--border);
   font-weight: bold;
   font-size: 13px;
@@ -232,7 +209,7 @@
   align-items: center;
 }
 .preview-wrap .preview-header .status {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--muted);
   font-weight: normal;
 }
@@ -243,10 +220,10 @@
   font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
   font-size: 13px;
   white-space: pre;
-  color: #cfd3da;
+  color: var(--text);
   margin: 0;
   tab-size: 4;
-  background: #141519;
+  background: var(--preview);
 }
 
 /* =========================================================
@@ -254,7 +231,7 @@
    ========================================================= */
 .toolbar {
   padding: 14px 18px;
-  background: #18191d;
+  background: var(--bg);
   border-top: 1px solid var(--border);
   display: flex;
   gap: 10px;
@@ -272,17 +249,15 @@
 .charId-input {
   width: 80px;
   padding: 5px 10px;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  color: #f5cd1f;
+  border-radius: 4px;
+  color: var(--warn);
   font-size: 13px;
   font-weight: 700;
-  background: #b05a2f;
   outline: none;
   margin: 0;
   text-align: center;
 }
-.charId-input:focus { border-color: var(--warn); }
+.charId-input:focus { border-color: var(--charsbg); }
 .charId-input::placeholder { color: #555; }
 
 /* =========================================================
@@ -328,7 +303,7 @@
 .color-chip {
   width: 28px;
   height: 28px;
-  border-radius: 5px;
+  border-radius: 4px;
   border: 2px solid var(--border);
   cursor: pointer;
   padding: 0;
@@ -372,12 +347,12 @@
 .choice-item,
 .merge-item {
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: 4px;
   padding: 12px;
   margin-top: 10px;
 }
-.choice-item { background: #1e1f24; }
-.merge-item  { background: #1a2538; }
+.choice-item { background: var(--panel2); }
+.merge-item  { background: var(--panel2); }
 
 .choice-head,
 .merge-head {
@@ -390,9 +365,10 @@
 .merge-num {
   font-weight: bold;
   font-size: 13px;
+  color: var(--accent);
 }
 .choice-num { color: var(--accent); }
-.merge-num  { color: #a8c7fa; }
+.merge-num  { color: var(--pink); }
 
 .choice-item label { margin-top: 8px; }
 .choice-item label:first-of-type { margin-top: 0; }
@@ -407,22 +383,22 @@
   width: 100%;
 }
 .add-choice-btn {
-  background: #2a3a55;
-  border-color: #3a5a8a;
-  color: #8ab4f8;
+  background: var(--blue2);
+  border-color: var(--blue3);
+  color: var(--accent);
 }
 .add-choice-btn:hover {
-  background: #3a4a65;
-  border-color: #4a6a9a;
+  background: var(--blue3);
+  border-color: var(--accent);
 }
 .add-merge-btn {
-  background: #552a3a;
-  border-color: #8a3a5a;
-  color: #f88ab4;
+  background: var(--pink2);
+  border-color: var(--pink3);
+  color: var(--pink);
 }
 .add-merge-btn:hover {
-  background: #653a4a;
-  border-color: #9a4a6a;
+  background: var(--pink3);
+  border-color: var(--pink);
 }
 
 .choices-container { margin-top: 4px; }
@@ -434,7 +410,7 @@
   align-items: center;
   gap: 6px;
   margin-top: 10px;
-  font-size: 12px;
+  font-size: 13px;
   color: var(--muted);
   cursor: pointer;
 }
