@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>⚙️ 캐릭터 CSV 생성기</title>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style_maker.css">
+</head>
+<!-- era_Maker_Set.html -->
+<body data-page="csv">
+
+<div class="header">
+  <h1>⚙️ Era R 캐릭터 CSV 생성기</h1>
+  <nav class="header-nav">
+    <a href="era_Readme.html" data-nav="readme">도움말</a>
+    <a href="Csv.html" data-nav="csv" class="active">CSV 생성</a>
+    <a href="era_Maker_Set.html"   data-nav="set">기본 세팅</a>
+    <a href="era_Maker_Act.html"   data-nav="act">조교 액션</a>
+    <a href="era_Maker_Event.html" data-nav="event">조교 이벤트</a>
+    <a href="era_Maker_Talk.html"  data-nav="talk">대화 구상</a>
+  </nav>
+</div>
+
+<div class="main-container">
+
+  <!-- ===== 왼쪽: 입력 + 소질 버튼 ===== -->
+  <aside class="sidebar2">
+    <div class="panel">
+      <h2>캐릭터 정보 / 소질 선택</h2>
+      <div class="panel-body">
+        <label>번호 (Chara번호)</label>
+        <input type="text" id="num" placeholder="예: 131">
+
+        <label>이름</label>
+        <input type="text" id="name" placeholder="도검남사 이름">
+
+        <label>도종</label>
+        <select id="weapon">
+          <option value="단도">단도</option>
+          <option value="협차">협차</option>
+          <option value="타도">타도</option>
+          <option value="태도">태도</option>
+          <option value="대태도">대태도</option>
+          <option value="창">창</option>
+          <option value="치도">치도</option>
+          <option value="츠루기">츠루기</option>
+        </select>
+
+        <label>소질 (클릭하여 선택/해제)</label>
+        <div id="quality-categories"></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ===== 오른쪽: 불러오기 + 생성/다운로드 + 출력 ===== -->
+  <main class="editor-wrap2">
+    <div class="panel">
+      <h2>불러오기 / 생성 / 미리보기</h2>
+      <div class="panel-body">
+        <label for="fileInput">📂 CSV 파일 불러오기</label>
+        <input type="file" id="fileInput" accept=".csv,text/csv">
+
+        <div class="btn-row">
+          <button id="genBtn" class="primary">CSV 생성</button>
+          <button id="dlBtn" disabled>다운로드</button>
+        </div>
+
+        <div id="status"></div>
+        <div id="result"></div>
+      </div>
+
+        <h2>신규 캐릭터 추가 시</h2>
+      <div class="toolbar">
+        1. CSV ▶ Chara ▶ Chara__.csv 파일 작성<br>
+        2. CSV ▶ ITEM.CSV : 캐릭터목록에 추가<br>
+        3. ERB ▶ START_SYSTEM.ERB ▶ @EVENTFIRST ▶ FLAG:8 = 인원수 변경<br>
+        4. ERB ▶ CLOTHES.ERB : 의상설정
+      </div>
+        <h2>도종 특성 (자동 반영)</h2>
+      <div class="toolbar">
+        1. 단도 : 작은 체형(110), 회복빠름(112)<br>
+        2. 협차 : 회복빠름(112)<br>
+        3. 대태도/창/치도 : 장신(111)<br>
+        4. 이름 끝에 받침이 있는 경우(ex. 시치세이켄, 헤이시쇼린켄 등) 기타 ▶ 170. 이름 끝에 받침을 꼭 선택해주세요.<br>
+		5. 플레이어(사니와) 소질은 게임 내에서 직접 설정해야 합니다.
+      </div>
+    </div>
+  </main>
+
+</div>
+
+<script src="js_csv.js"></script>
+</body>
+</html>

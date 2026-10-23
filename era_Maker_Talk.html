@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>📙 R 대화 메이커</title>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style_maker.css">
+<script src="js_maker.js"></script>
+</head>
+<!-- era_Maker_Talk.html -->
+<body data-page="talk">
+
+<div class="header">
+  <h1>📙 Era R 대화 메이커 [Talk]</h1>
+  <label class="chk"><input type="checkbox" id="withHeader" checked> 출력에 <code>;──</code> 주석 구분자 포함</label>
+  <nav class="header-nav">
+    <a href="era_Readme.html" data-nav="readme">도움말</a>
+    <a href="Csv.html" data-nav="csv">CSV 생성</a>
+    <a href="era_Maker_Set.html"   data-nav="set">기본 세팅</a>
+    <a href="era_Maker_Act.html"   data-nav="act">조교 액션</a>
+    <a href="era_Maker_Event.html" data-nav="event">조교 이벤트</a>
+    <a href="era_Maker_Talk.html"  data-nav="talk">대화 구상</a>
+  </nav>
+</div>
+
+<div class="main-container">
+  <div class="sidebar">
+    <iframe id="strFrame" src="side_Talk.html" title="사이드바 뷰어"></iframe>
+  </div>
+
+  <div class="editor-wrap">
+    <p class="hint">각 세트의 분기 방식에 따라 번호(<code>1.2.</code>) 뒤에 <code>[호감도]</code> 혹은 <code>[조교회차]</code>를 적어주세요.</p>
+    <div class="editor-inner">
+      <div id="sets"></div>
+    </div>
+  </div>
+
+  <div class="preview-wrap">
+    <div class="preview-header">
+      <span>출력 결과 프리뷰</span>
+      <span class="status" id="previewStatus">대기 중</span>
+    </div>
+    <pre id="preview">(출력 결과가 여기에 표시됩니다)</pre>
+  </div>
+</div>
+
+<div class="toolbar">
+  <span id="totalCharsDisplay" class="total-chars">총 글자수 : 0 자</span>
+  캐릭터번호<input type="text" id="globalCharId" class="charId-input" placeholder="K번호" autocomplete="off">
+  <button id="outBtn" class="primary" type="button">출력</button>
+  <button id="saveErbBtn" type="button">.ERB 저장</button>
+  <button id="copyBtn" type="button">복사</button>
+  <div class="spacer"></div>
+  <button id="clearBtn" type="button" class="del">전체 초기화</button>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  const STORAGE_KEY = 'era_talk_editor_v1';
+  const CHAR_ID_KEY = 'era_talk_editor_char_id';
+
+  const setsEl = document.getElementById('sets');
+  const previewEl = document.getElementById('preview');
+  const withHeaderEl = document.getElementById('withHeader');
+  const previewStatus = document.getElementById('previewStatus');
+  const globalCharId = document.getElementById('globalCharId');
+
+  // 공통 유틸 참조
+  const { transformText, parseBlocks, getContentCharCount } = window.EraCommon;
+
+  /* ============================================================
+     세트 기본 설정
+     ============================================================ */
+  const SETS_CONFIG = [
+    { num: 1,  title: 'Talk 0. 휴식을 요청했고, 받아들여짐',           branches: ['random','favor','round'], def: 'random', funcName: 'KOJO_TALK0' },
+    { num: 2,  title: 'Talk 1. 잡담을 나눈다',                          branches: ['random','favor','round'], def: 'random', funcName: 'KOJO_TALK1' },
+    { num: 3,  title: 'Talk 2. 스킨십을 한다',                          branches: ['select'], def: 'select', funcName: 'KOJO_TALK2', branchUi: 'select-auto', placeholder: '내용 (번호 1~5.만 작동)' },
+    { num: 4,  title: 'Talk 3. 선물 - 웃는 얼굴 (1)',                   branches: ['random','favor','round'], def: 'random', funcName: 'KOJO_TALK31', subTitle: '└ 1 웃는 얼굴' },
+    { num: 5,  title: 'Talk 3. 선물 - 붓 (2)',                          branches: ['random','favor','round'], def: 'random', funcName: 'KOJO_TALK32', subTitle: '└ 2 붓' },
+    { num: 6,  title: 'Talk 3. 선물 - 종이 (3)',                        branches: ['random','favor','round'], def: 'random', funcName: 'KOJO_TALK33', subTitle: '└ 3 종이' },
+    { num: 7,  title: 'Talk 3. 선물 - 부채 (4)',                        branches: ['random','favor','round'], def: 'random', funcName: 'KOJO_TALK34', subTitle: '└ 4 부채' },
+    { num: 8,  title: 'Talk 3. 선물 - 우산 (5)',                        branches: ['random','favor','round'], def: 'random', funcName: 'KOJO_TALK35', subTitle: '└ 5 우산' },
+    { num: 9,  title: 'Talk 3. 선물 - 화관 (6)',                        branches: ['random','favor','round'], def: 'random', funcName: 'KOJO_TALK36', subTitle: '└ 6 화관' },
+    { num: 10, title: 'Talk 3. 선물 - 고급 다도구 (7)',                 branches: ['random','favor','round'], def: 'random', funcName: 'KOJO_TALK37', subTitle: '└ 7 고급 다도구' },
+    { num: 11, title: 'Talk 3. 선물 - 찻잎 (8)',                        branches: ['random','favor','round'], def: 'random', funcName: 'KOJO_TALK38', subTitle: '└ 8 찻잎' },
+    { num: 12, title: 'Talk 3. 선물 - 춘화집 (9)',                      branches: ['random','favor','round'], def: 'random', funcName: 'KOJO_TALK39', subTitle: '└ 9 춘화집' },
+    { num: 13, title: 'Talk 3. 선물 - 카메라 (10)',                     branches: ['random','favor','round'], def: 'random', funcName: 'KOJO_TALK310', subTitle: '└ 10 카메라' },
+    { num: 14, title: 'Talk 3. 선물 - 물총 (11)',                       branches: ['random','favor','round'], def: 'random', funcName: 'KOJO_TALK311', subTitle: '└ 11 물총' },
+    { num: 15, title: 'Talk 3. 선물 - 입고 있는 속옷 (20)',             branches: ['random','favor','round'], def: 'random', funcName: 'KOJO_TALK320', subTitle: '└ 20 입고 있는 속옷' },
+    { num: 16, title: 'Talk 3. 선물 - 반지를 주며 청혼 (30)',                       branches: ['random','favor','round'], def: 'random', funcName: 'KOJO_TALK330', subTitle: '└ 30 반지를 주며 청혼' },
+    { num: 17, title: 'Talk 4. 술을 마신다',                            branches: ['random','favor','round'], def: 'random', funcName: 'KOJO_TALK41', subTitle: '└ 술이 있음' },
+    { num: 18, title: 'Talk 4. 술이 없어서 대신 사니와의 XX를 마신다',             branches: ['random','favor','round'], def: 'random', funcName: 'KOJO_TALK40', subTitle: '└ 술이 없어서 XX를 마심' },
+    { num: 19, title: 'Talk 7. 상태이상의 치료를 요구한다',             branches: ['random','favor','round'], def: 'random', funcName: 'KOJO_TALK7' },
+    { num: 20, title: 'Talk 10. 이름을 알려준다 (1회만 발생)',                       branches: [], def: null, funcName: 'KOJO_TALK10', noBranch: true, isComment: true },
+    { num: 21, title: 'Talk 11. 생일을 알려준다 (1회만 발생)',                       branches: [], def: null, funcName: 'KOJO_TALK11', noBranch: true, isComment: true },
+    { num: 22, title: 'Talk 20. 도검남사의 이야기를 듣는다',            branches: ['random','favor','round'], def: 'random', funcName: 'KOJO_TALK20' }
+  ];
+
+  const BRANCH_LABELS = {
+    random: '미지정 (번호 없음) / 랜덤 (번호.로 분기 : ex. 1.내용 2.내용...)',
+    favor:  '호감도 (번호.[호감도]로 분기 : ex. 1.[3000]내용, 2.[500]내용... 큰 수부터. 마지막 번호는 [호감도] 표기X)',
+    round:  '조교회차 (번호.[조교횟수]로 분기 : ex. 1.[1]내용, 2.[10]내용... 마지막 번호는 [조교횟수] 표기X)',
+    select: '셀렉트 박스'
+  };
+
+  /* ============================================================
+     글자수 갱신
+     ============================================================ */
+  function updateCharCounts() {
+    let total = 0;
+    document.querySelectorAll('.set').forEach(el => {
+      const content = el.querySelector('.content').value;
+      const c = getContentCharCount(content);
+      const badge = el.querySelector('.set-char-count');
+      if (badge) badge.textContent = c.toLocaleString() + ' 자';
+      total += c;
+    });
+    const totalEl = document.getElementById('totalCharsDisplay');
+    if (totalEl) totalEl.textContent = '총 글자수 : ' + total.toLocaleString() + ' 자';
+  }
+
+  /* ============================================================
+     블록 생성
+     ============================================================ */
+  function makeSetBlock(setConfig, enabled, branchType, text) {
+    const out = [];
+    const localValue = enabled ? 1 : 0;
+    out.push('LOCAL = ' + localValue);
+    out.push('IF LOCAL');
+
+    let transformed = text;
+    if (!/PRINTFORM[LW]|PRINTFORMD[LW]/.test(text)) {
+      transformed = transformText(text);
+    }
+    const blocks = parseBlocks(transformed);
+
+    if (blocks.length === 0) {
+      out.push('ENDIF');
+      return out.join('\n');
+    }
+
+    if (branchType === 'select') {
+      const selector = 'TFLAG:90';
+      const explicit = blocks.filter(b => b.explicitNum);
+      const implicit = blocks.filter(b => !b.explicitNum);
+
+      if (explicit.length === 0) {
+        implicit.forEach(b => b.lines.forEach(l => out.push('\t' + l)));
+      } else {
+        out.push('\tSELECTCASE ' + selector);
+        explicit.forEach(b => {
+          out.push('\t\tCASE ' + b.num);
+          b.lines.forEach(l => out.push('\t\t\t' + l));
+        });
+        out.push('\t\tCASEELSE');
+        implicit.forEach(b => b.lines.forEach(l => out.push('\t\t\t' + l)));
+        out.push('\tENDSELECT');
+      }
+    } else if (branchType === 'favor' || branchType === 'round') {
+  // parseBlocks는 bracketNums(배열)를 반환
+  const hasBracket = (b) => Array.isArray(b.bracketNums) && b.bracketNums.length > 0;
+
+  const condFn = (nums) => {
+    if (branchType === 'favor') {
+      return nums.map(n => `FAVOR(${n})`).join(' && ');
+    } else {
+      // 조교회차 : CFLAG:200 == n (다중이면 &&)
+      return nums.map(n => `CFLAG:200 == ${n}`).join(' && ');
+    }
+  };
+
+  const bracketed = blocks.filter(hasBracket);
+  const unbracketed = blocks.filter(b => !hasBracket(b));
+
+  if (bracketed.length > 0) {
+    bracketed.forEach((b, idx) => {
+      out.push(`\t${idx === 0 ? 'IF' : 'ELSEIF'} ${condFn(b.bracketNums)}`);
+      b.lines.forEach(l => out.push('\t\t' + l));
+    });
+    if (unbracketed.length > 0) {
+      out.push('\tELSE');
+      unbracketed.forEach(b => b.lines.forEach(l => out.push('\t\t' + l)));
+    }
+    out.push('\tENDIF');
+  } else {
+    unbracketed.forEach(b => b.lines.forEach(l => out.push('\t\t' + l)));
+  }
+    } else {
+      // random
+      const allNums = blocks.map(b => b.num).filter(n => n !== null && n > 0);
+      const maxNum = allNums.length > 0 ? Math.max(...allNums) : 0;
+      const n = maxNum > 0 ? maxNum : 0;
+
+      if (n <= 1) {
+        blocks[0].lines.forEach(l => out.push('\t' + l));
+      } else {
+        for (let i = 0; i < n; i++) {
+          const b = blocks.find(x => x.num === i + 1) || { lines: ['PRINTFORMDW (내용 없음)'] };
+          if (i === n - 1) {
+            out.push('\tELSE');
+          } else {
+            out.push('\t' + (i === 0 ? 'IF' : 'ELSEIF') + ' !RAND:' + (n - i));
+          }
+          b.lines.forEach(l => out.push('\t\t' + l));
+        }
+        out.push('\tENDIF');
+      }
+    }
+
+    out.push('\tRETURN LOCAL');
+    out.push('ENDIF');
+    return out.join('\n');
+  }
+
+  /* ============================================================
+     함수 생성
+     ============================================================ */
+  function makeTalkFunction(setConfig, charId, withHeader) {
+    const el = document.querySelector('.set[data-setnum="' + setConfig.num + '"]');
+    if (!el) return null;
+
+    const enabled = el.querySelector('.enabled').checked;
+    const branchEl = el.querySelector('.branchType');
+    const branchType = branchEl ? branchEl.value : setConfig.def;
+    const content = el.querySelector('.content').value;
+
+    // 사용 안 함이면 삭제
+    if (!enabled) return null;
+
+    // 내용이 비어있으면 삭제 (세트 전체 블록 삭제)
+    const textTrimmed = content.trim();
+    if (!textTrimmed) return null;
+
+    const out = [];
+
+    if (withHeader) {
+      out.push(';──────────');
+      if (setConfig.subTitle) {
+        out.push(';' + setConfig.subTitle);
+      } else {
+        out.push(';' + setConfig.title.replace(/^Talk \d+\.\s*/, ''));
+      }
+    }
+
+    out.push('@' + setConfig.funcName + '_K' + charId);
+
+    if (setConfig.isComment) {
+      out.push(';' + setConfig.title.replace(/^Talk \d+\.\s*/, ''));
+    }
+
+    const block = makeSetBlock(setConfig, enabled, branchType, content);
+    out.push(block);
+
+    return out.join('\n');
+  }
+
+  function generate() {
+    const withHeader = withHeaderEl.checked;
+    const charId = globalCharId.value.trim() || '0';
+    const parts = [];
+
+    SETS_CONFIG.forEach(cfg => {
+      const result = makeTalkFunction(cfg, charId, withHeader);
+      if (result) {
+        parts.push(result);
+      }
+    });
+
+    return parts.join('\n\n');
+  }
+
+  /* ============================================================
+     UI 생성
+     ============================================================ */
+  function createSet(setConfig, savedData) {
+    savedData = savedData || {};
+    const el = document.createElement('div');
+    el.className = 'set';
+    el.dataset.setnum = setConfig.num;
+
+    const defaultPlaceholder = setConfig.placeholder || '내용 (분기가 필요한 경우 번호 작성 : ex. 1.내용 2.내용...)';
+
+    let branchHtml = '';
+    if (setConfig.noBranch) {
+      branchHtml = '';
+    } else if (setConfig.branchUi === 'select-auto') {
+      branchHtml =
+        '<div class="branch-note">분기 방식 : <b>셀렉트박스 (자동)</b></div>';
+    } else {
+      const branchOptions = setConfig.branches.map(b =>
+        '<option value="' + b + '">' + BRANCH_LABELS[b] + '</option>'
+      ).join('');
+      branchHtml =
+        '<label>분기 방식' +
+          '<select class="branchType">' + branchOptions + '</select>' +
+        '</label>';
+    }
+
+    el.innerHTML =
+      '<div class="set-head">' +
+        '<div class="set-title-wrap">' +
+          '<label class="enabled-label"><input type="checkbox" class="enabled" title="사용 여부"> 사용</label>' +
+          '<span class="set-title"><span class="set-num">세트 ' + setConfig.num + '</span> ' + setConfig.title + '</span>' +
+          '<span class="set-char-count">0 자</span>' +
+        '</div>' +
+      '</div>' +
+      branchHtml +
+      '<label>' + defaultPlaceholder +
+        '<textarea class="content" rows="5" spellcheck="false"></textarea>' +
+      '</label>';
+
+    const enabledEl = el.querySelector('.enabled');
+    const branchEl = el.querySelector('.branchType');
+    const contentEl = el.querySelector('.content');
+
+    // 사용여부 기본값 : 체크
+    enabledEl.checked = savedData.enabled !== undefined ? savedData.enabled : true;
+    if (branchEl) {
+      branchEl.value = savedData.branchType || setConfig.def;
+    }
+    contentEl.value = savedData.content || '';
+
+    setsEl.appendChild(el);
+    return el;
+  }
+
+  /* ============================================================
+     저장 / 복원
+     ============================================================ */
+  function persist() {
+    const data = {};
+    document.querySelectorAll('.set').forEach(el => {
+      const num = el.dataset.setnum;
+      const branchEl = el.querySelector('.branchType');
+      data[num] = {
+        enabled: el.querySelector('.enabled').checked,
+        branchType: branchEl ? branchEl.value : undefined,
+        content: el.querySelector('.content').value
+      };
+    });
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      localStorage.setItem(CHAR_ID_KEY, globalCharId.value);
+    } catch (e) {}
+  }
+
+  function restore() {
+    try {
+      const savedCharId = localStorage.getItem(CHAR_ID_KEY);
+      if (savedCharId) globalCharId.value = savedCharId;
+
+      const raw = localStorage.getItem(STORAGE_KEY);
+      let data = {};
+      if (raw) {
+        try { data = JSON.parse(raw) || {}; } catch (e) { data = {}; }
+      }
+      SETS_CONFIG.forEach(cfg => {
+        createSet(cfg, data[cfg.num] || {});
+      });
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /* ============================================================
+     검증
+     ============================================================ */
+  function validate() {
+    const warns = [];
+    document.querySelectorAll('.set').forEach(el => {
+      const setNum = el.dataset.setnum;
+      const cfg = SETS_CONFIG.find(c => String(c.num) === String(setNum));
+      if (!cfg) return;
+      const branchEl = el.querySelector('.branchType');
+      const branchType = branchEl ? branchEl.value : cfg.def;
+      const content = el.querySelector('.content').value;
+
+      if (!content.trim()) return;
+
+      let text = content;
+      if (!/PRINTFORM[LW]|PRINTFORMD[LW]/.test(text)) {
+        text = transformText(text);
+      }
+      const blocks = parseBlocks(text);
+      if (blocks.length === 0) return;
+
+      if (branchType === 'select') {
+        blocks.filter(b => b.explicitNum).forEach(b => {
+          if (b.num < 0) {
+            warns.push('세트 ' + setNum + ': CASE 번호(' + b.num + ')가 음수입니다.');
+          }
+        });
+      } else if (branchType === 'favor' || branchType === 'round') {
+  const label = branchType === 'favor' ? '호감도' : '조교회차';
+  blocks.forEach(b => {
+    if (Array.isArray(b.bracketNums) && b.bracketNums.length > 0) {
+      b.bracketNums.forEach(n => {
+        if (n < 0) {
+          warns.push('세트 ' + setNum + ' (' + label + '): 값(' + n + ')이 음수입니다.');
+        }
+      });
+    }
+  });
+      } else if (branchType === 'random') {
+        const nums = blocks.filter(b => b.explicitNum).map(b => b.num).sort((a,b)=>a-b);
+        if (nums.length > 0) {
+          for (let i = 0; i < nums.length; i++) {
+            if (nums[i] !== i + 1) {
+              warns.push('세트 ' + setNum + ' (랜덤): 번호가 1부터 연속되지 않습니다. (' + nums.join(', ') + ')');
+              break;
+            }
+          }
+        }
+      }
+    });
+    return warns;
+  }
+
+  /* ============================================================
+     이벤트 핸들러
+     ============================================================ */
+  document.getElementById('outBtn').addEventListener('click', () => {
+    const warns = validate();
+    if (warns.length) {
+      const msg = '⚠ 다음 항목을 확인하세요.\n\n' + warns.join('\n') + '\n\n그래도 출력할까요?';
+      if (!confirm(msg)) return;
+    }
+    const result = generate();
+    previewEl.textContent = result.trim() ? result : '(출력할 내용이 없습니다)';
+    previewStatus.textContent = '출력 완료';
+    persist();
+  });
+
+  document.getElementById('saveErbBtn').addEventListener('click', () => {
+    const text = previewEl.textContent;
+    if (!text || text === '(출력 결과가 여기에 표시됩니다)' || text === '(출력할 내용이 없습니다)') {
+      alert('먼저 [출력] 버튼을 눌러주세요.');
+      return;
+    }
+    const charId = globalCharId.value.trim();
+    if (!charId) {
+      alert('하단 툴바의 캐릭터 지정번호가 비어 있습니다.');
+      return;
+    }
+
+    const baseName = 'KOJO_TALK_K' + charId;
+    const ext = '.ERB';
+
+    let savedFiles = [];
+    try { savedFiles = JSON.parse(localStorage.getItem(SAVED_FILES_KEY) || '[]'); } catch (e) {}
+
+    let finalName = baseName + ext;
+    let counter = 1;
+    while (savedFiles.includes(finalName)) {
+      finalName = baseName + '_' + counter + ext;
+      counter++;
+    }
+    savedFiles.push(finalName);
+    try { localStorage.setItem(SAVED_FILES_KEY, JSON.stringify(savedFiles)); } catch (e) {}
+
+    const blob = new Blob(['\uFEFF' + text], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = finalName;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  });
+
+  document.getElementById('copyBtn').addEventListener('click', async () => {
+    const text = previewEl.textContent;
+    if (!text) return;
+    try {
+      await navigator.clipboard.writeText(text);
+      const btn = document.getElementById('copyBtn');
+      const old = btn.textContent;
+      btn.textContent = '복사됨!';
+      setTimeout(() => { btn.textContent = old; }, 1200);
+    } catch (e) {
+      alert('복사에 실패했습니다. 미리보기 영역을 직접 선택해 복사해 주세요.');
+    }
+  });
+
+  document.getElementById('clearBtn').addEventListener('click', () => {
+    if (!confirm('모든 세트를 초기 상태로 되돌릴까요?\n(내용이 전부 삭제됩니다)')) return;
+    setsEl.innerHTML = '';
+    try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+    SETS_CONFIG.forEach(cfg => createSet(cfg, {}));
+    previewEl.textContent = '(출력 결과가 여기에 표시됩니다)';
+    previewStatus.textContent = '대기 중';
+    updateCharCounts();
+  });
+
+  document.addEventListener('input', e => {
+    if (e.target.closest('.set') || e.target === globalCharId) {
+      persist();
+      updateCharCounts();
+    }
+  });
+
+  /* ---------------- 시작 ---------------- */
+  if (!restore()) {
+    SETS_CONFIG.forEach(cfg => createSet(cfg, {}));
+  }
+  updateCharCounts();
+
+  window.EraCommon.initHeaderNav('talk');
+
+})();
+</script>
+</body>
+</html>
