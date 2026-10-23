@@ -266,12 +266,10 @@
       // CFLAG:200++ 직후 인트로/비조교자 체크 블록 삽입 및 청혼 이벤트 삽입
       if (func.prepend === 'CFLAG:200++') {
         out.push('');
-        out.push('IF CFLAG:200 == 1');
-        out.push('\t;인트로 구상 (원래 조교자일 때, 조교 첫회에 출력)');
-        out.push('\tIF TALENT:131 && FIRSTTIME(0)');
-		out.push('\t\tCALL INTRO_STORY');
-        out.push('\t\tRETURN 1');
-        out.push('\tENDIF');
+        out.push('IF CFLAG:200 == 1 && TALENT:131 && FIRSTTIME(0)');
+        out.push(';인트로 구상 (원래 조교자일 때, 조교 첫회에 출력)');
+		out.push('\tCALL INTRO_STORY');
+        out.push('\tRETURN 1');
         out.push('ENDIF');
         out.push('');
 		out.push(';──────────');
