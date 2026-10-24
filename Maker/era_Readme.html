@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>🏷️ R 메이커 사용법</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<!-- era_Readme.html -->
+<body data-page="readme">
+
+<div class="header">
+  <h1>🏷️ Era R 구상 메이커 사용법</h1>
+  <nav class="header-nav">
+    <a href="era_Readme.html" data-nav="readme" class="active">도움말</a>
+    <a href="Csv.html" data-nav="csv">CSV 생성</a>
+    <a href="era_Maker_Set.html"   data-nav="set">기본 세팅</a>
+    <a href="era_Maker_Act.html"   data-nav="act">조교 액션</a>
+    <a href="era_Maker_Event.html" data-nav="event">조교 이벤트</a>
+    <a href="era_Maker_Talk.html"  data-nav="talk">대화 구상</a>
+  </nav>
+</div>
+
+<div class="main-container">
+  <aside class="sidebar2">
+    <div class="readme-toc-wrap">
+      <div class="panel">
+        <h2>목차</h2>
+        <div class="panel-body" style="line-height:2;">
+          <ul style="list-style:none; padding:0; margin:0;">
+            <li><a href="#csv" style="color:var(--accent); text-decoration:none;">(1) CSV 생성</a> — 캐릭터 CSV 생성. 신규 캐릭터 추가시 필수</li>
+            <li><a href="#set" style="color:var(--accent); text-decoration:none;">(2) 기본 세팅</a> — 캐릭터 기본 세팅. 구상 작성시 필수</li>
+            <li><a href="#act" style="color:var(--accent); text-decoration:none;">(3) 조교 액션</a> — 조교 시 출력되는 액션/리액션 구상 작성</li>
+            <li><a href="#event" style="color:var(--accent); text-decoration:none;">(4) 조교 이벤트</a> — 조교 시 출력되는 이벤트 구상 작성</li>
+            <li><a href="#talk" style="color:var(--accent); text-decoration:none;">(5) 대화 구상</a> — 대화 시 출력되는 구상 작성</li>
+            <li><a href="#inquiry" style="color:var(--accent); text-decoration:none;">(6) 문의사항</a> — 플레이 오류 제보 및 주의사항</li>
+            <li><a href="#editor" style="color:var(--accent); text-decoration:none;">(7) 편집기 사양</a> — 온라인 테스트 작업용 링크 및 안내</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>공통 안내</h2>
+        <div class="panel-body" style="line-height:1.8;">
+          <p>플레이어명은 <b style="color:var(--warn);">[이름]</b>, 도검남사명은 <b style="color:var(--warn);">[남사]</b>로 작성하면,
+				출력 시 <b style="color:var(--warn);">플레이어명</b>과 <b style="color:var(--warn);">도검남사 캐릭터명</b>, <b style="color:var(--warn);">조사(은/는/이/가 등) 함수</b>가 자동 적용됩니다.
+			<br>도검남사 이름은 직접 작성하셔도 무방하나, 이름이 긴 경우 번거로움과 오·탈자 등을 방지하기 위한 편의상 기능입니다.</p>
+          <p>대사는 "대사"로, 지문은 따옴표 없이 그냥 작성해주세요. "대사"는 캐릭터 구상 지정색으로, 지문은 일반 텍스트 색상이 자동 반영됩니다.
+			<br>출력시 "대사"는 <b style="color:var(--warn);">「대사」</b>로, ...는 <b style="color:var(--warn);">…</b>으로 부호가 자동 변환됩니다.</p>
+        </div>
+      </div>
+
+    <!-- (1) Csv.html -->
+    <div class="panel" id="csv">
+      <h2>(1) Csv.html [CSV 생성]</h2>
+      <div class="panel-body" style="line-height:1.8;">
+        <p>신규 캐릭터의 csv를 추가하거나, 기존 캐릭터의 csv를 변환할 때 사용합니다.</p>
+        <p>단도는 <b style="color:var(--warn);">[작은체형]</b>과 <b style="color:var(--warn);">[회복 빠름]</b>, 협차는 <b style="color:var(--warn);">[회복 빠름]</b>, 대태도/창/치도는 자동으로 <b style="color:var(--warn);">[장신]</b> 속성이 반영됩니다.
+			<br>게임 메인화면의 <span style="color:var(--warn);">[400] 설정 변경：CONFIG</span> → <b>[4] 도검남사의 소질 변경</b>을 통해 변경할 수도 있습니다.</p>
+		<p><b style="color:var(--err);">플레이어(사니와)의 소질은 생성기를 사용할 수 없습니다.</b>
+			<br>게임 시작시 설정하거나, 메인화면의 <span style="color:var(--warn);">[400] 설정 변경：CONFIG</span> → <b>[1] 플레이어의 소질 변경</b>을 통해 변경할 수 있습니다.
+			<br>혹은 메모장 등으로 직접 csv파일을 열어서 수정할 수도 있습니다.</p>
+      </div>
+    </div>
+
+    <!-- (2) era_Maker_Set.html -->
+    <div class="panel" id="set">
+      <h2>(2) era_Maker_Set.html [기본 세팅]</h2>
+      <div class="panel-body" style="line-height:1.8;">
+        <p><b style="color:var(--warn);">★구상 신규 추가시 생성 필수★</b><br>
+        해당 파일을 생성하지 않으면 액션/이벤트 구상이 있어도 실제 게임에 출력되지 않습니다!!</p>
+
+        <p>내용만 입력해도 기본 구상 KOJO_K○○.ERB 파일을 만들 수 있습니다. 입력칸 크기는 우측 하단을 클릭해서 늘리거나 줄일 수 있습니다.</p>
+
+        <ul style="padding-left:20px; margin:8px 0;">
+          <li>캐릭터번호 (csv 번호와 동일)</li>
+          <li>캐릭터 대사 색상 1 (어두운 글씨색. 흰 화면일 때 표시)</li>
+          <li>캐릭터 대사 색상 2 (밝은 글씨색. 검은 화면일 때 표시)</li>
+        </ul>
+
+        <p>3가지 항목은 필수이며, 나머지는 빈칸으로 두더라도 ERB 파일 생성이 가능합니다.<br>
+        오프닝/인트로는 최초 실행을 전제하고 있으므로 랜덤/호감도 분기 등은 설정이 불가능하며, 선택지 분기만 가능합니다.<br>
+        조교 시작시 발생하는 청혼, 고백(연모 돌입), 피로 중지(조교자/플레이어) 이벤트 구상도 여기서 작성할 수 있습니다.</p>
+
+        <p><b>이름 및 조사, 부호 등은 자동 변환됩니다.</b></p>
+
+        <p><b style="color:var(--err);">세팅 메이커를 통해 작성한 KOJO_K○○.ERB 파일만 불러오기/수정하기가 가능합니다.</b><br>
+        <span style="color:var(--green);">호환 가능한 도검남사 세팅 파일은 사이드바에 녹색으로 표시가 되어 있습니다.</span><br>
+        기존에 존재하던 다른 구상엔 편집기가 지원하지 않는 함수 등이 들어있으니 임의로 편집하지 마십시오. 오류가 날 수 있습니다.</p>
+      </div>
+    </div>
+
+    <!-- (3) era_Maker_Act.html -->
+    <div class="panel" id="act">
+      <h2>(3) era_Maker_Act.html [조교 액션/리액션]</h2>
+      <div class="panel-body" style="line-height:1.8;">
+        <p>내용만 입력해도 액션 구상 <code>KOJO_ACT_K○○.ERB</code> 파일을 만들 수 있습니다. 입력칸 크기는 우측 하단을 클릭해서 늘리거나 줄일 수 있습니다.</p>
+
+        <p><b style="color:var(--warn);">하단 툴바에 캐릭터번호(csv 번호와 동일)를 입력하십시오.</b></p>
+
+        <p><b style="color:var(--warn);">번호.를 붙여 작성하면 분기 함수가 추가됩니다. 각각의 번호 사이는 한 줄 띄워주세요.</b><br>
+        액션 분기는 랜덤/호감도 중 선택, 리액션 분기는 랜덤/호감도/답변 중에 선택 가능합니다.</p>
+
+        <h3 style="color:var(--accent); font-size:13px; margin:16px 0 8px;">랜덤 분기 예시</h3>
+        <pre style="background:#141519; border:1px solid var(--border); border-radius:6px; padding:12px; font-size:12px; line-height:1.6; overflow:auto; color:#cfd3da;">1.A
+
+2.B
+
+3.C
+
+= 해당 액션/리액션 작동 시 A/B/C 구상이 랜덤하게 출력됨</pre>
+
+        <h3 style="color:var(--accent); font-size:13px; margin:16px 0 8px;">호감도 분기 예시</h3>
+        <p>번호. 뒤에 <b>[호감도 숫자]</b>를 작성해주세요. 마지막 번호에는 <b>[호감도 숫자]</b>를 입력하지 않아야 지정 호감도 미만인 경우에도 구상이 출력됩니다.<br>
+		호감도 분기는 지정숫자 이상인 경우에 적용되므로, 큰 숫자가 위로 와야 합니다.<br>
+        음수는 입력이 불가능하므로, 꼭 마이너스 호감도를 사용하길 원하는 경우 숫자 입력 후 메모장 등으로 열어 <code>FAVOR(숫자)</code> 앞에 <span style="color:var(--err);">!</span> 부호를 붙여주세요. (예시 - <span style="color:var(--err);">!FAVOR(200)</span> 등)</p>
+        <pre style="background:#141519; border:1px solid var(--border); border-radius:6px; padding:12px; font-size:12px; line-height:1.6; overflow:auto; color:#cfd3da;">1.[2000]A
+
+2.[500]B
+
+3.C
+
+= 호감도 2000이상일 시 A 구상, 호감도 500이상일 시 B 구상, 그 외의 경우에는 C 구상 출력됨</pre>
+
+        <h3 style="color:var(--accent); font-size:13px; margin:16px 0 8px;">답변 분기 예시 (리액션에만 적용됨)</h3>
+        <p>번호. 뒤에 <b>[답변 숫자]</b>를 작성해주세요. 마지막 번호에는 <b>[답변 숫자]</b>를 입력하지 않아야 지정 번호 이외의 답변 선택시에도 구상이 출력됩니다.</p>
+        <pre style="background:#141519; border:1px solid var(--border); border-radius:6px; padding:12px; font-size:12px; line-height:1.6; overflow:auto; color:#cfd3da;">1.[7]A
+
+2.[32]B
+
+3.C
+
+= 플레이어가 7.용서를 빈다 선택시 A 구상, 32.난동을 부린다 선택시 B 구상, 그 외의 경우에는 C 구상 출력됨</pre>
+
+        <p>그밖의 함수로 분기를 만들거나 함수 속 함수, 다중 조건 등을 설정하고 싶다면 ERB파일을 직접 수정하셔야 합니다.</p>
+		
+		<p><b>이름 및 조사, 부호 등은 자동 변환됩니다.</b></p>
+      </div>
+    </div>
+
+    <!-- (4) era_Maker_Event.html -->
+    <div class="panel" id="event">
+      <h2>(4) era_Maker_Event.html [조교 이벤트]</h2>
+      <div class="panel-body" style="line-height:1.8;">
+        <p>내용만 입력해도 이벤트 구상 <code>KOJO_EVENT_K○○.ERB</code> 파일을 만들 수 있습니다. 입력칸 크기는 우측 하단을 클릭해서 늘리거나 줄일 수 있습니다.</p>
+
+        <p><b style="color:var(--warn);">하단 툴바에 캐릭터번호(csv 번호와 동일)를 입력하십시오.</b></p>
+
+        <p><b style="color:var(--warn);">첫 조교 시작(인트로), 청혼, 고백(연모 돌입), 피로 중지(조교자/플레이어) 구상은 KOJO_ACT_K○○.ERB 파일에서 작동하므로 era_Maker_Set.html 에서 작성해주세요.</b></p>
+
+        <p>사용 체크박스를 해제하면 해당 블록의 구상은 뜨지 않습니다.</p>
+
+        <p>번호.를 붙여 작성하면 분기 함수가 추가됩니다. 각각의 번호 사이는 한 줄 띄워주세요.<br>작성 방식은 era_Maker_Act.html 와 비슷합니다.</p>
+
+        <p>분기 방식에 답변 대신 조교횟수를 사용할 수 있습니다. n번째 조교시 출력되며, 마지막 번호에는 <b>[조교횟수]</b>를 입력하지 않아야 지정 회차 이외의 조교 시에도 구상이 출력됩니다.</p>
+
+        <p><b style="color:var(--warn);">셀렉트박스 (자동)</b> 표기된 경우 지정 번호에 해당하는 숫자로 작성해야만 구상이 제대로 출력됩니다. 범위 안의 모든 번호를 작성하실 필요는 없습니다.</p>
+
+        <p>출산 후 구상은 딸/아들 구분이 없습니다. 구분을 원하시면 ERB파일을 직접 수정하셔야 합니다.</p>
+
+        <p>그밖의 함수로 분기를 만들거나 함수 속 함수, 다중 조건 등을 설정하고 싶다면 ERB파일을 직접 수정하셔야 합니다.</p>
+
+        <p><b>이름 및 조사, 부호 등은 자동 변환됩니다.</b></p>
+      </div>
+    </div>
+
+    <!-- (5) era_Maker_Talk.html -->
+    <div class="panel" id="talk">
+      <h2>(5) era_Maker_Talk.html [대화 구상]</h2>
+      <div class="panel-body" style="line-height:1.8;">
+        <p>내용만 입력해도 이벤트 구상 <code>KOJO_TALK_K○○.ERB</code> 파일을 만들 수 있습니다. 입력칸 크기는 우측 하단을 클릭해서 늘리거나 줄일 수 있습니다.</p>
+
+        <p><b style="color:var(--warn);">하단 툴바에 캐릭터번호(csv 번호와 동일)를 입력하십시오.</b></p>
+
+        <p>사용 체크박스를 해제하면 해당 블록의 구상은 뜨지 않습니다.</p>
+
+        <p>번호.를 붙여 작성하면 분기 함수가 추가됩니다. 각각의 번호 사이는 한 줄 띄워주세요.<br>작성 방식은 era_Maker_Act.html 와 비슷합니다.</p>
+
+        <p>분기 방식에 답변 대신 조교횟수를 사용할 수 있습니다. n번째 조교시 출력되며, 마지막 번호에는 <b>[조교횟수]</b>를 입력하지 않아야 지정 회차 이외의 조교 시에도 구상이 출력됩니다.</p>
+
+        <p><b style="color:var(--warn);">셀렉트박스 (자동)</b> 표기된 경우 지정 번호에 해당하는 숫자로 작성해야만 구상이 제대로 출력됩니다. 범위 안의 모든 번호를 작성하실 필요는 없습니다.</p>
+
+        <p><b style="color:var(--warn);">10. 이름을 알려준다 / 11. 생일을 알려준다</b> 는 최초 1회만 발생하며, 성공시에만 구상이 뜹니다.</p>
+
+        <p>그밖의 함수로 분기를 만들거나 함수 속 함수, 다중 조건 등을 설정하고 싶다면 ERB파일을 직접 수정하셔야 합니다.</p>
+
+        <p><b>이름 및 조사, 부호 등은 자동 변환됩니다.</b></p>
+      </div>
+    </div>
+
+    <!-- (6) 문의사항 -->
+    <div class="panel" id="inquiry">
+      <div class="panel-body" style="line-height:1.8;">
+        <p>포스타입 : <a href="https://saniwa.postype.com/" target="_blank" style="color:var(--accent); text-decoration:none;">https://saniwa.postype.com/</a></p>
+        <p>사니와채널 (42ch.kr)<br>
+		└  혼마루 : [혼마루연구소] 도검에라R 개조하는 혼마루<br>
+        └  도검 덕질 : [에라] 도검에라(era) 이야기하는 스레</p>
+        <p>각종 플레이 오류 제보 / 버그 등은 상기 주소로 연락 바랍니다.</p>
+        <p><b style="color:var(--err);">에라는 기본적으로 성인(19금) 게임이므로, 구상 내용이나 지문 등을 공개된 곳에 노출하시면 안 됩니다.</b></p>
+      </div>
+    </div>
+
+    <!-- (7) 편집기 사양 -->
+    <div class="panel" id="editor">
+      <h2>(7) 편집기 사양</h2>
+      <div class="panel-body" style="line-height:1.8;">
+        <p>현재 아래 주소에서 테스트 작업이 가능합니다.</p>
+        <p><a href="https://touken328.github.io/era-r-maker" target="_blank" style="color:var(--accent); text-decoration:none;">https://touken328.github.io/era-r-maker</a></p>
+        <p><b style="color:var(--err);">편집기 링크를 외부에 유출하지 말아주세요.</b> 해당 편집기 링크는 추후 삭제될 수 있습니다.</p>
+        <p>자유롭게 이용하려면 원 배포 페이지(포스타입)에서 에라 R 메이커를 다운로드해주세요.</p>
+      </div>
+    </div>
+
+
+    </div>
+  </aside>
+
+</div>
+
+</body>
+</html>

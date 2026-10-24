@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>📙 R 이벤트 메이커</title>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style_maker.css">
+<script src="js_maker.js"></script>
+</head>
+<!-- era_Maker_Event.html -->
+<body data-page="event">
+
+<div class="header">
+  <h1>📙 Era R 이벤트 메이커 [Event]</h1>
+  <label class="chk"><input type="checkbox" id="withHeader" checked> 출력에 <code>;──</code> 주석 구분자 포함</label>
+  <nav class="header-nav">
+    <a href="era_Readme.html" data-nav="readme">도움말</a>
+    <a href="Csv.html" data-nav="csv">CSV 생성</a>
+    <a href="era_Maker_Set.html"   data-nav="set">기본 세팅</a>
+    <a href="era_Maker_Act.html"   data-nav="act">조교 액션</a>
+    <a href="era_Maker_Event.html" data-nav="event">조교 이벤트</a>
+    <a href="era_Maker_Talk.html"  data-nav="talk">대화 구상</a>
+  </nav>
+</div>
+
+<div class="main-container">
+  <div class="sidebar">
+    <iframe id="strFrame" src="../side/side_Event.html" title="사이드바 뷰어"></iframe>
+  </div>
+
+  <div class="editor-wrap">
+    <p class="hint">각 세트의 분기 방식에 따라 번호(<code>1.2.</code>) 뒤에 <code>[호감도]</code> 혹은 <code>[조교회차]</code>를 적어주세요.</p>
+    <div class="editor-inner">
+      <div id="sets"></div>
+    </div>
+  </div>
+
+  <div class="preview-wrap">
+    <div class="preview-header">
+      <span>출력 결과 프리뷰</span>
+      <span class="status" id="previewStatus">대기 중</span>
+    </div>
+    <pre id="preview">(출력 결과가 여기에 표시됩니다)</pre>
+  </div>
+</div>
+
+<div class="toolbar">
+  <span id="totalCharsDisplay" class="total-chars">총 글자수 : 0 자</span>
+  캐릭터번호<input type="text" id="globalCharId" class="charId-input" placeholder="K번호" autocomplete="off">
+  <button id="outBtn" class="primary" type="button">출력</button>
+  <button id="saveErbBtn" type="button">.ERB 저장</button>
+  <button id="copyBtn" type="button">복사</button>
+  <div class="spacer"></div>
+  <button id="clearBtn" type="button" class="del">전체 초기화</button>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  const STORAGE_KEY = 'era_event_editor_v1';
+  const CHAR_ID_KEY = 'era_event_editor_char_id';
+
+  const setsEl = document.getElementById('sets');
+  const previewEl = document.getElementById('preview');
+  const withHeaderEl = document.getElementById('withHeader');
+  const previewStatus = document.getElementById('previewStatus');
+  const globalCharId = document.getElementById('globalCharId');
+
+  // 공통 유틸 참조
+  const { transformText, parseBlocks, getContentCharCount } = window.EraCommon;
+
+  /* ============================================================
+     세트 기본 설정
+     ※ branchUi: 'select-auto' → 셀렉트 자동 안내만 표기 (드롭다운 X)
+     ※ noBranch: true → 분기 방식 선택 UI 자체 없음 (입력칸만)
+     ※ argCond: IF 조건 문자열 (없으면 'IF LOCAL')
+     ※ returnVal: 블록 내 RETURN 값 (없으면 RETURN 없음)
+     ※ localVal: LOCAL 값 재정의 (없으면 1)
+     ============================================================ */
+  const SETS_CONFIG = [
+    { num: 1,  title: 'Event 11. 조교 개시',              branches: ['random','favor','round'], def: 'random', funcId: 11 },
+    { num: 2,  title: 'Event 12. 조교 행동 전 - 조교 중지',     branches: ['select'], def: 'select', funcId: 12,
+      branchUi: 'select-auto', placeholder: '내용 (번호 1~6.만 작동)', argCond: 'IF LOCAL && ARG == 2', returnVal: 1, localVal: 2 },
+    { num: 3,  title: 'Event 12. 조교 행동 전 - 조교 개시',     branches: ['random','favor','round'], def: 'random', funcId: 12 },
+    { num: 4,  title: 'Event 13. 조교 종료 (사니와 실신)',        branches: ['random','favor','round'], def: 'random', funcId: 13,
+      argCond: 'IF LOCAL && ARG == 2', returnVal: 1 },
+    { num: 5,  title: 'Event 13. 조교 종료 (일반)',        branches: ['random','favor','round'], def: 'random', funcId: 13 },
+    { num: 6,  title: 'Event 14. 탈출 이벤트',              branches: ['select'], def: 'select', funcId: 14,
+      branchUi: 'select-auto', placeholder: '내용 (번호 1~6.만 작동)' },
+    { num: 7,  title: 'Event 15. 특수 이벤트',              branches: ['select'], def: 'select', funcId: 15,
+      branchUi: 'select-auto', placeholder: '내용 (번호 1~9.만 작동)' },
+    { num: 8,  title: 'Event 16. 대만족 보너스 (선택 전)', branches: ['random','favor','round'], def: 'random', funcId: 16 },
+    { num: 9,  title: 'Event 16. 대만족 보너스 (선택 후)', branches: ['select'], def: 'select', funcId: 16,
+      branchUi: 'select-auto', placeholder: '내용 (미지정 또는 번호 0~13.만 작동)' },
+    { num: 10, title: 'Event 17. 오늘의 방침',              branches: ['select'], def: 'select', funcId: 17, useTFlag: true,
+      branchUi: 'select-auto', placeholder: '내용 (미지정 또는 번호 1,10,11.만 작동)' },
+    { num: 11, title: 'Event 18. 사니와 임신 발각',               branches: ['random','favor','round'], def: 'random', funcId: 18,
+      argCond: 'IF LOCAL && ARG == 6', returnVal: 1 },
+    { num: 12, title: 'Event 18. 사니와 만삭',               branches: ['random','favor','round'], def: 'random', funcId: 18,
+      argCond: 'IF LOCAL && ARG == 7', returnVal: 1 },
+    { num: 13, title: 'Event 18. 사니와 출산 (딸/아들 구분 안함)',                    branches: ['random','favor','round'], def: 'random', funcId: 18,
+      argCond: 'IF LOCAL && (ARG == 4 || ARG == 5)', returnVal: 1 },
+    { num: 14, title: 'Event 102. 조교자 전환 완료(만남)',         branches: ['random','favor','round'], def: 'random', funcId: 102,
+      argCond: 'IF LOCAL && ARG == 1', returnVal: 1 },
+    { num: 15, title: 'Event 102. 조교자 전환 요청(퇴거)',         branches: ['random','favor','round'], def: 'random', funcId: 102 },
+    { num: 16, title: 'Event 21. 조교 중 대만족',           branches: ['random','favor','round'], def: 'random', funcId: 21 },
+    { num: 17, title: 'Event 24. 조교자 욕망 상승',         branches: ['random','favor','round'], def: 'random', funcId: 24, noBranch: true,
+      argCond: 'IF LOCAL && ARG == 1', returnVal: 2 },
+    { num: 18, title: 'Event 24. 조교자 기교 상승',         branches: ['random','favor','round'], def: 'random', funcId: 24, noBranch: true,
+      argCond: 'IF LOCAL && ARG == 2', returnVal: 2 }
+  ];
+
+  const FUNC_GROUPS = [
+    { id: 11,  setNums: [1],           prepend: 'CFLAG:200++' },
+    { id: 12,  setNums: [2, 3] },
+    { id: 13,  setNums: [4, 5] },
+    { id: 14,  setNums: [6] },
+    { id: 15,  setNums: [7] },
+    { id: 16,  setNums: [8, 9] },
+    { id: 17,  setNums: [10] },
+    { id: 18,  setNums: [11, 12, 13] },
+    { id: 102, setNums: [14, 15] },
+    { id: 21,  setNums: [16] },
+    { id: 24,  setNums: [17, 18] }
+  ];
+
+  const BRANCH_LABELS = {
+    random: '미지정 (번호 없음) / 랜덤 (번호.로 분기 : ex. 1.내용 2.내용...)',
+    favor:  '호감도 (번호.[호감도]로 분기 : ex. 1.[3000]내용, 2.[500]내용... 큰 수부터. 마지막 번호는 [호감도] 표기X)',
+    round:  '조교회차 (번호.[조교횟수]로 분기 : ex. 1.[1]내용, 2.[10]내용... 마지막 번호는 [조교횟수] 표기X)',
+    select: '셀렉트 박스'
+  };
+
+  /* ============================================================
+     글자수 갱신
+     ============================================================ */
+  function updateCharCounts() {
+    let total = 0;
+    document.querySelectorAll('.set').forEach(el => {
+      const content = el.querySelector('.content').value;
+      const c = getContentCharCount(content);
+      const badge = el.querySelector('.set-char-count');
+      if (badge) badge.textContent = c.toLocaleString() + ' 자';
+      total += c;
+    });
+    const totalEl = document.getElementById('totalCharsDisplay');
+    if (totalEl) totalEl.textContent = '총 글자수 : ' + total.toLocaleString() + ' 자';
+  }
+
+  /* ============================================================
+     블록 생성
+     ============================================================ */
+  function makeSetBlock(setConfig, enabled, branchType, text) {
+    const out = [];
+    // localVal 이 있으면 해당 값, 없으면 enabled ? 1 : 0
+    const localValue = setConfig.localVal !== undefined
+      ? setConfig.localVal
+      : (enabled ? 1 : 0);
+    out.push('LOCAL = ' + localValue);
+    out.push(setConfig.argCond || 'IF LOCAL');
+
+    let transformed = text;
+    if (!/PRINTFORM[LW]|PRINTFORMD[LW]/.test(text)) {
+      transformed = transformText(text);
+    }
+    const blocks = parseBlocks(transformed);
+
+    if (blocks.length === 0) {
+      if (setConfig.returnVal !== undefined) {
+        out.push('\tRETURN ' + setConfig.returnVal);
+      }
+      out.push('ENDIF');
+      return out.join('\n');
+    }
+
+    if (branchType === 'select') {
+      const selector = setConfig.useTFlag ? 'TFLAG:77' : 'ARG';
+      const explicit = blocks.filter(b => b.explicitNum);
+      const implicit = blocks.filter(b => !b.explicitNum);
+
+      if (explicit.length === 0) {
+        implicit.forEach(b => b.lines.forEach(l => out.push('\t' + l)));
+      } else {
+        out.push('\tSELECTCASE ' + selector);
+        explicit.forEach(b => {
+          out.push('\t\tCASE ' + b.num);
+          b.lines.forEach(l => out.push('\t\t\t' + l));
+        });
+        out.push('\t\tCASEELSE');
+        implicit.forEach(b => b.lines.forEach(l => out.push('\t\t\t' + l)));
+        out.push('\tENDSELECT');
+      }
+    } else if (branchType === 'favor' || branchType === 'round') {
+  // parseBlocks는 bracketNums(배열)를 반환하므로 첫 번째 값을 사용
+  const getBracketNum = (b) =>
+    (Array.isArray(b.bracketNums) && b.bracketNums.length > 0)
+      ? b.bracketNums[0]
+      : null;
+
+  const bracketed = blocks.filter(b => getBracketNum(b) !== null);
+  const unbracketed = blocks.filter(b => getBracketNum(b) === null);
+  const condFn = (n) => branchType === 'favor' ? `FAVOR(${n})` : `CFLAG:200 == ${n}`;
+
+  if (bracketed.length > 0) {
+    bracketed.forEach((b, idx) => {
+      out.push(`\t${idx === 0 ? 'IF' : 'ELSEIF'} ${condFn(getBracketNum(b))}`);
+      b.lines.forEach(l => out.push('\t\t' + l));
+    });
+    if (unbracketed.length > 0) {
+      out.push('\tELSE');
+      unbracketed.forEach(b => b.lines.forEach(l => out.push('\t\t' + l)));
+    }
+    out.push('\tENDIF');
+  } else {
+    unbracketed.forEach(b => b.lines.forEach(l => out.push('\t\t' + l)));
+  }
+    } else {
+      const allNums = blocks.map(b => b.num).filter(n => n !== null && n > 0);
+      const maxNum = allNums.length > 0 ? Math.max(...allNums) : 0;
+      const n = maxNum > 0 ? maxNum : 0;
+
+      if (n <= 1) {
+        blocks[0].lines.forEach(l => out.push('\t' + l));
+      } else {
+        for (let i = 0; i < n; i++) {
+          const b = blocks.find(x => x.num === i + 1) || { lines: ['PRINTFORMDW (내용 없음)'] };
+          if (i === n - 1) {
+            out.push('\tELSE');
+          } else {
+            out.push('\t' + (i === 0 ? 'IF' : 'ELSEIF') + ' !RAND:' + (n - i));
+          }
+          b.lines.forEach(l => out.push('\t\t' + l));
+        }
+        out.push('\tENDIF');
+      }
+    }
+
+    if (setConfig.returnVal !== undefined) {
+      out.push('\tRETURN ' + setConfig.returnVal);
+    }
+    out.push('ENDIF');
+    return out.join('\n');
+  }
+
+  /* ============================================================
+     함수 생성
+     ============================================================ */
+  function makeEventFunction(func, charId, withHeader) {
+    const out = [];
+
+    if (withHeader) {
+      const setNames = func.setNums.map(n => {
+        const c = SETS_CONFIG.find(x => x.num === n);
+        return '세트 ' + n + ': ' + c.title;
+      });
+      out.push(';───────────');
+      out.push('; ■ KOJO_EVENT_K' + charId + '_' + func.id + ' (' + setNames.join(', ') + ')');
+      out.push(';───────────');
+    }
+
+    out.push('@KOJO_EVENT_K' + charId + '_' + func.id + '(ARG)');
+    if (func.prepend) {
+      out.push(func.prepend);
+      // CFLAG:200++ 직후 인트로/비조교자 체크 블록 삽입 및 청혼 이벤트 삽입
+      if (func.prepend === 'CFLAG:200++') {
+        out.push('');
+        out.push('IF CFLAG:200 == 1 && TALENT:131 && FIRSTTIME(0)');
+        out.push(';인트로 구상 (원래 조교자일 때, 조교 첫회에 출력)');
+		out.push('\tCALL INTRO_STORY');
+        out.push('\tRETURN 1');
+        out.push('ENDIF');
+        out.push('');
+		out.push(';──────────');
+		out.push(';청혼');
+		out.push('LOCAL = 3');
+		out.push('IF LOCAL && TALENT:78 && FAVOR(9000, 9000) && MONEY >= 1000000 && FIRSTTIME(99)');
+		out.push(';연모, 상호 호감도 9천 이상, 소지금 100만 이상');
+		out.push('\tCALL WEDDING_STORY');
+		out.push('\tRETURN 1');
+		out.push('ENDIF');
+        out.push('');
+		out.push(';──────────');
+		out.push(';피로로 인한 조교 중지');
+		out.push('LOCAL = 3');
+		out.push('IF LOCAL && ARG');
+		out.push('\t;조교자가 피로한 상태');
+		out.push('\tIF ARG == 1');
+		out.push('\t\tCALL STOP_TOUKEN');
+		out.push('\t\tRETURN 1');
+		out.push('\t;사니와가 피로한 상태');
+		out.push('\tELSE');
+		out.push('\t\tCALL STOP_SANIWA');
+		out.push('\t\tRETURN 1');
+		out.push('\tENDIF');
+		out.push('ENDIF');
+		out.push('');
+		out.push(';──────────');
+		out.push(';첫 고백, 연모');
+		out.push('LOCAL = 1');
+		out.push('IF LOCAL && FAVOR(3000, 3000) && FIRSTTIME(189)');
+		out.push(';상호 호감도 3천 이상, 첫 고백');
+		out.push('\tCALL LOVE_STORY');
+		out.push('\tRETURN 1');
+		out.push('ENDIF');
+        out.push('');
+      }
+    }
+
+    const setParts = [];
+    func.setNums.forEach(setNum => {
+      const setConfig = SETS_CONFIG.find(c => c.num === setNum);
+      const el = document.querySelector('.set[data-setnum="' + setNum + '"]');
+      if (!el) return;
+      const enabled = el.querySelector('.enabled').checked;
+      const branchEl = el.querySelector('.branchType');
+      const branchType = branchEl ? branchEl.value : setConfig.def;
+      const content = el.querySelector('.content').value;
+      setParts.push(makeSetBlock(setConfig, enabled, branchType, content));
+    });
+
+    out.push(setParts.join('\n\n'));
+    out.push('RETURN 1');
+
+    return out.join('\n');
+  }
+
+  function generate() {
+    const withHeader = withHeaderEl.checked;
+    const charId = globalCharId.value.trim() || '0';
+    const parts = [];
+    FUNC_GROUPS.forEach(func => {
+      parts.push(makeEventFunction(func, charId, withHeader));
+    });
+    return parts.join('\n\n');
+  }
+
+  /* ============================================================
+     UI 생성
+     ============================================================ */
+  function createSet(setConfig, savedData) {
+    savedData = savedData || {};
+    const el = document.createElement('div');
+    el.className = 'set';
+    el.dataset.setnum = setConfig.num;
+
+    const defaultPlaceholder = setConfig.placeholder || '내용 (분기가 필요한 경우 번호 작성 : ex. 1.내용 2.내용...)';
+
+    let branchHtml = '';
+    if (setConfig.noBranch) {
+      branchHtml = '';
+    } else if (setConfig.branchUi === 'select-auto') {
+      branchHtml =
+        '<div class="branch-note">분기 방식 : <b>셀렉트박스 (자동)</b></div>';
+    } else {
+      const branchOptions = setConfig.branches.map(b =>
+        '<option value="' + b + '">' + BRANCH_LABELS[b] + '</option>'
+      ).join('');
+      branchHtml =
+        '<label>분기 방식' +
+          '<select class="branchType">' + branchOptions + '</select>' +
+        '</label>';
+    }
+
+    el.innerHTML =
+      '<div class="set-head">' +
+        '<div class="set-title-wrap">' +
+          '<label class="enabled-label"><input type="checkbox" class="enabled" title="사용 여부"> 사용</label>' +
+          '<span class="set-title"><span class="set-num">세트 ' + setConfig.num + '</span> ' + setConfig.title + '</span>' +
+          '<span class="set-char-count">0 자</span>' +
+        '</div>' +
+      '</div>' +
+      branchHtml +
+      '<label>' + defaultPlaceholder +
+        '<textarea class="content" rows="5" spellcheck="false"></textarea>' +
+      '</label>';
+
+    const enabledEl = el.querySelector('.enabled');
+    const branchEl = el.querySelector('.branchType');
+    const contentEl = el.querySelector('.content');
+
+    enabledEl.checked = savedData.enabled !== undefined ? savedData.enabled : true;
+    if (branchEl) {
+      branchEl.value = savedData.branchType || setConfig.def;
+    }
+    contentEl.value = savedData.content || '';
+
+    setsEl.appendChild(el);
+    return el;
+  }
+
+  /* ============================================================
+     저장 / 복원
+     ============================================================ */
+  function persist() {
+    const data = {};
+    document.querySelectorAll('.set').forEach(el => {
+      const num = el.dataset.setnum;
+      const branchEl = el.querySelector('.branchType');
+      data[num] = {
+        enabled: el.querySelector('.enabled').checked,
+        branchType: branchEl ? branchEl.value : undefined,
+        content: el.querySelector('.content').value
+      };
+    });
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      localStorage.setItem(CHAR_ID_KEY, globalCharId.value);
+    } catch (e) {}
+  }
+
+  function restore() {
+    try {
+      const savedCharId = localStorage.getItem(CHAR_ID_KEY);
+      if (savedCharId) globalCharId.value = savedCharId;
+
+      const raw = localStorage.getItem(STORAGE_KEY);
+      let data = {};
+      if (raw) {
+        try { data = JSON.parse(raw) || {}; } catch (e) { data = {}; }
+      }
+      SETS_CONFIG.forEach(cfg => {
+        createSet(cfg, data[cfg.num] || {});
+      });
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /* ============================================================
+     검증
+     ============================================================ */
+  function validate() {
+    const warns = [];
+    document.querySelectorAll('.set').forEach(el => {
+      const setNum = el.dataset.setnum;
+      const cfg = SETS_CONFIG.find(c => String(c.num) === String(setNum));
+      if (!cfg) return;
+      const branchEl = el.querySelector('.branchType');
+      const branchType = branchEl ? branchEl.value : cfg.def;
+      const content = el.querySelector('.content').value;
+
+      let text = content;
+      if (!/PRINTFORM[LW]|PRINTFORMD[LW]/.test(text)) {
+        text = transformText(text);
+      }
+      const blocks = parseBlocks(text);
+      if (blocks.length === 0) return;
+
+      if (branchType === 'select') {
+        blocks.filter(b => b.explicitNum).forEach(b => {
+          if (b.num < 0) {
+            warns.push('세트 ' + setNum + ': CASE 번호(' + b.num + ')가 음수입니다.');
+          }
+        });
+      } else if (branchType === 'favor') {
+        blocks.forEach(b => {
+          if (b.bracketNum !== null && b.bracketNum < 0) {
+            warns.push('세트 ' + setNum + ' (호감도): 값(' + b.bracketNum + ')이 음수입니다.');
+          }
+        });
+      } else if (branchType === 'round') {
+        blocks.forEach(b => {
+          if (b.bracketNum !== null && b.bracketNum < 0) {
+            warns.push('세트 ' + setNum + ' (조교회차): 값(' + b.bracketNum + ')이 음수입니다.');
+          }
+        });
+      } else {
+        const nums = blocks.filter(b => b.explicitNum).map(b => b.num).sort((a,b)=>a-b);
+        if (nums.length > 0) {
+          for (let i = 0; i < nums.length; i++) {
+            if (nums[i] !== i + 1) {
+              warns.push('세트 ' + setNum + ' (랜덤): 번호가 1부터 연속되지 않습니다. (' + nums.join(', ') + ')');
+              break;
+            }
+          }
+        }
+      }
+    });
+    return warns;
+  }
+
+  /* ============================================================
+     이벤트 핸들러
+     ============================================================ */
+  document.getElementById('outBtn').addEventListener('click', () => {
+    const warns = validate();
+    if (warns.length) {
+      const msg = '⚠ 다음 항목을 확인하세요.\n\n' + warns.join('\n') + '\n\n그래도 출력할까요?';
+      if (!confirm(msg)) return;
+    }
+    const result = generate();
+    previewEl.textContent = result.trim() ? result : '(출력할 내용이 없습니다)';
+    previewStatus.textContent = '출력 완료';
+    persist();
+  });
+
+  document.getElementById('saveErbBtn').addEventListener('click', () => {
+    const text = previewEl.textContent;
+    if (!text || text === '(출력 결과가 여기에 표시됩니다)' || text === '(출력할 내용이 없습니다)') {
+      alert('먼저 [출력] 버튼을 눌러주세요.');
+      return;
+    }
+    const charId = globalCharId.value.trim();
+    if (!charId) {
+      alert('하단 툴바의 캐릭터 지정번호가 비어 있습니다.');
+      return;
+    }
+
+    const baseName = 'KOJO_EVENT_K' + charId;
+    const ext = '.ERB';
+
+    let savedFiles = [];
+    try { savedFiles = JSON.parse(localStorage.getItem(SAVED_FILES_KEY) || '[]'); } catch (e) {}
+
+    let finalName = baseName + ext;
+    let counter = 1;
+    while (savedFiles.includes(finalName)) {
+      finalName = baseName + '_' + counter + ext;
+      counter++;
+    }
+    savedFiles.push(finalName);
+    try { localStorage.setItem(SAVED_FILES_KEY, JSON.stringify(savedFiles)); } catch (e) {}
+
+    const blob = new Blob(['\uFEFF' + text], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = finalName;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  });
+
+  document.getElementById('copyBtn').addEventListener('click', async () => {
+    const text = previewEl.textContent;
+    if (!text) return;
+    try {
+      await navigator.clipboard.writeText(text);
+      const btn = document.getElementById('copyBtn');
+      const old = btn.textContent;
+      btn.textContent = '복사됨!';
+      setTimeout(() => { btn.textContent = old; }, 1200);
+    } catch (e) {
+      alert('복사에 실패했습니다. 미리보기 영역을 직접 선택해 복사해 주세요.');
+    }
+  });
+
+  document.getElementById('clearBtn').addEventListener('click', () => {
+    if (!confirm('모든 세트를 초기 상태로 되돌릴까요?\n(내용이 전부 삭제됩니다)')) return;
+    setsEl.innerHTML = '';
+    try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+    SETS_CONFIG.forEach(cfg => createSet(cfg, {}));
+    previewEl.textContent = '(출력 결과가 여기에 표시됩니다)';
+    previewStatus.textContent = '대기 중';
+    updateCharCounts();
+  });
+
+  document.addEventListener('input', e => {
+    if (e.target.closest('.set') || e.target === globalCharId) {
+      persist();
+      updateCharCounts();
+    }
+  });
+
+  /* ---------------- 시작 ---------------- */
+  if (!restore()) {
+    SETS_CONFIG.forEach(cfg => createSet(cfg, {}));
+  }
+  updateCharCounts();
+
+  window.EraCommon.initHeaderNav('event');
+
+})();
+</script>
+</body>
+</html>
