@@ -285,8 +285,15 @@
 		out.push(';피로로 인한 조교 중지');
 		out.push('LOCAL = 3');
 		out.push('IF LOCAL && ARG');
-		out.push('\tCALL STOP_STORY');
-		out.push('\tRETURN 1');
+		out.push('\t;조교자가 피로한 상태');
+		out.push('\tIF ARG == 1');
+		out.push('\t\tCALL STOP_TOUKEN');
+		out.push('\t\tRETURN 1');
+		out.push('\t;사니와가 피로한 상태');
+		out.push('\tELSE');
+		out.push('\t\tCALL STOP_SANIWA');
+		out.push('\t\tRETURN 1');
+		out.push('\tENDIF');
 		out.push('ENDIF');
 		out.push('');
 		out.push(';──────────');

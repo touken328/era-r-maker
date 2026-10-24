@@ -697,7 +697,10 @@ button.delete {
   }
 }
 /* =========================================================
-   readme 목차 + 공통 안내 2단 배치
+   readme 목차 + 공통 안내 반응형 배치
+   - 1800px 이상 : 3단
+   - 900px 이상  : 2단
+   - 900px 미만  : 1단
    ========================================================= */
 .readme-toc-wrap {
   display: grid;
@@ -706,10 +709,17 @@ button.delete {
   padding: 16px;
 }
 .readme-toc-wrap .panel {
-  margin: 0;   /* sidebar2 .panel 의 margin:16px 덮어쓰기 */
+  margin: 18px 0;
 }
 
-/* 좁은 화면에서는 1단으로 */
+/* 1800px 이상: 3단 */
+@media (min-width: 1800px) {
+  .readme-toc-wrap {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* 900px 이하: 1단 */
 @media (max-width: 900px) {
   .readme-toc-wrap {
     grid-template-columns: 1fr;
