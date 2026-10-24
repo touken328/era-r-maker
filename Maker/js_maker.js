@@ -32,6 +32,7 @@
     let t = text;
     t = applyNameAndJosaConversion(t, '이름', '%CALLNAME:MASTER%', 'TALENT:MASTER:170');
     t = applyNameAndJosaConversion(t, '당신', '%CALLNAME:MASTER%', 'TALENT:MASTER:170');
+    t = applyNameAndJosaConversion(t, '주인', '%CALLNAME:MASTER%', 'TALENT:MASTER:170');
     t = applyNameAndJosaConversion(t, '남사', '%CALLNAME:TARGET%', 'TALENT:TARGET:170');
     return t;
   }
