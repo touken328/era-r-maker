@@ -269,7 +269,7 @@
         out.push('IF CFLAG:200 == 1 && TALENT:131 && FIRSTTIME(0)');
         out.push(';인트로 구상 (원래 조교자일 때, 조교 첫회에 출력)');
 		out.push('\tCALL INTRO_STORY');
-        out.push('\tRETURN 1');
+        out.push('\tRETURN LOCAL');
         out.push('ENDIF');
         out.push('');
 		out.push(';──────────');
@@ -278,7 +278,7 @@
 		out.push('IF LOCAL && TALENT:78 && FAVOR(9000, 9000) && MONEY >= 1000000 && FIRSTTIME(99)');
 		out.push(';연모, 상호 호감도 9천 이상, 소지금 100만 이상');
 		out.push('\tCALL WEDDING_STORY');
-		out.push('\tRETURN 1');
+		out.push('\tRETURN LOCAL');
 		out.push('ENDIF');
         out.push('');
 		out.push(';──────────');
@@ -292,7 +292,7 @@
 		out.push('\tELSE');
 		out.push('\t\tCALL STOP_SANIWA');
 		out.push('\tENDIF');
-		out.push('\tRETURN 1');
+		out.push('\tRETURN LOCAL');
 		out.push('ENDIF');
 		out.push('');
 		out.push(';──────────');
@@ -301,7 +301,7 @@
 		out.push('IF LOCAL && FAVOR(3000, 3000) && FIRSTTIME(189)');
 		out.push(';상호 호감도 3천 이상, 첫 고백');
 		out.push('\tCALL LOVE_STORY');
-		out.push('\tRETURN 1');
+		out.push('\tRETURN LOCAL');
 		out.push('ENDIF');
         out.push('');
       }
@@ -320,7 +320,7 @@
     });
 
     out.push(setParts.join('\n\n'));
-    out.push('RETURN 1');
+    out.push('RETURN LOCAL');
 
     return out.join('\n');
   }

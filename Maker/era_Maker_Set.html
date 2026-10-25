@@ -807,7 +807,7 @@ if (erbFileInput) {
       blockInfo.choicesArea,
       blockInfo.mergeArea
     ).forEach(l => lines.push(l));
-    lines.push('\tRETURN 1');
+    lines.push('\tRETURN LOCAL');
     lines.push('ENDIF');
     return lines;
   }
@@ -845,7 +845,7 @@ if (erbFileInput) {
     lines.push(';━━━━━━━━━━');
     lines.push(';구상 존재 판정 (삭제 금지)');
     lines.push('@KOJO_K' + charNum);
-    lines.push('RETURN 1');
+    lines.push('RETURN LOCAL');
 
     // ─── 지문 설정 ───
     lines.push(';━━━━━━━━━━');
